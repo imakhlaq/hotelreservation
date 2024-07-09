@@ -5,6 +5,12 @@ import (
 	"github.com/imakhlaq/hotelreservation/types"
 )
 
+func HandleUser(c *fiber.Ctx) error {
+
+	id := c.Params("id") // id from req param
+
+	return c.JSON(map[string]string{"name": "Akhlaq Ahmad"})
+}
 func HandleUsers(c *fiber.Ctx) error {
 	u := &types.User{
 		ID:        "1021039019318",
@@ -12,7 +18,4 @@ func HandleUsers(c *fiber.Ctx) error {
 		LastName:  "Ahmad",
 	}
 	return c.JSON(u)
-}
-func HandleUser(c *fiber.Ctx) error {
-	return c.JSON(map[string]string{"name": "Akhlaq Ahmad"})
 }
