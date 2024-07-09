@@ -1,15 +1,49 @@
 package db
 
-import "github.com/imakhlaq/hotelreservation/types"
+import (
+	"context"
 
-//whatever you are using need to provide this interface implementation
-//u can have multiple databases in production u just need to implement this methods
+	"github.com/imakhlaq/hotelreservation/types"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+const (
+	userColl = "users"
+)
+
+// whatever you are using need to provide this interface implementation
+// u can have multiple databases in production u just need to implement this methods
 type UserStore interface {
-	GetUserByID(string) (*types.User, error)
+	GetUserByID(context.Context, string) (*types.User, error)
 }
 
-//example
+// example
 type MongoUserStore struct {
+	client *mongo.Client
+	coll   *mongo.Collection
+}
+
+func NewMongoUserStore(client *mongo.Client) *MongoUserStore {
+	return &MongoUserStore{
+		client: client,
+		coll:   client.Database(DBNAME).Collection(userColl),
+	}
+}
+
+func (m MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.User, error) {
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	var user types.User
+	if err = m.coll.FindOne(ctx, bson.M{"_id": oid}).Decode(&user); err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 // if u want to use postgres

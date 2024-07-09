@@ -10,11 +10,20 @@ type UserHandler struct {
 	userStore db.UserStore //userStore is interface so u can embed any struct that satisfy the interface
 }
 
+func NewUserHandler(userStore db.UserStore) *UserHandler {
+	return &UserHandler{userStore: userStore}
+}
+
 func (u UserHandler) HandleUser(c *fiber.Ctx) error {
 
 	id := c.Params("id") // id from req param
 
-	return c.JSON(map[string]string{"name": "Akhlaq Ahmad"})
+	user, err := u.userStore.GetUserByID(c.Context(), id)
+
+	if err != nil {
+		return c.JSON(map[string]string{"message": "User does't exit."})
+	}
+	return c.JSON(user)
 }
 func (u UserHandler) HandleUsers(c *fiber.Ctx) error {
 	user := &types.User{
