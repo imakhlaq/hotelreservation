@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/imakhlaq/hotelreservation/api/apiv1/handlers"
+	handlers "github.com/imakhlaq/hotelreservation/api/apiv1"
 	"github.com/imakhlaq/hotelreservation/db"
 	"github.com/imakhlaq/hotelreservation/error"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,11 +28,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := fiber.New(error.ErrorConfig)
+	app := fiber.New(error.Config)
 	apiV1 := app.Group("/api/v1")
 
 	//initializing handler with db
 	userHandler := handlers.NewUserHandler(db.NewMongoUserStore(client))
+	apiV1.Post("/user", userHandler.HandlePostUser)
 	apiV1.Get("/users", userHandler.HandleUsers)
 	apiV1.Get("/user/:id", userHandler.HandleUser)
 

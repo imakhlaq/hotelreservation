@@ -17,6 +17,8 @@ const (
 // u can have multiple databases in production u just need to implement this methods
 type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
+	GetAllUsers(context.Context) ([]*types.User, error)
+	InsertUser(context.Context, *types.User) (*types.User, error)
 }
 
 // example
@@ -44,6 +46,30 @@ func (m MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.User
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (m MongoUserStore) GetAllUsers(ctx context.Context) ([]*types.User, error) {
+
+	curr, err := m.coll.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+
+	var users []*types.User
+	if err = curr.All(ctx, &users); err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (m MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*types.User, error) {
+	res, err := m.coll.InsertOne(ctx, user)
+
+	if err != nil {
+		return nil, err
+	}
+	user.ID = res.InsertedID.(primitive.ObjectID)
+	return user, nil
 }
 
 // if u want to use postgres
