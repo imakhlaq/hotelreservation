@@ -13,15 +13,14 @@ const (
 	userColl = "users"
 )
 
-// whatever you are using need to provide this interface implementation
-// u can have multiple databases in production u just need to implement this methods
+// UserStore needed to be implemented by any DB u  want to use
 type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
 	GetAllUsers(context.Context) ([]*types.User, error)
 	InsertUser(context.Context, *types.User) (*types.User, error)
 }
 
-// example
+// MongoUserStore it uses mongoose
 type MongoUserStore struct {
 	client *mongo.Client
 	coll   *mongo.Collection
@@ -64,14 +63,15 @@ func (m MongoUserStore) GetAllUsers(ctx context.Context) ([]*types.User, error) 
 
 func (m MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*types.User, error) {
 	res, err := m.coll.InsertOne(ctx, user)
-
 	if err != nil {
 		return nil, err
 	}
+
 	user.ID = res.InsertedID.(primitive.ObjectID)
 	return user, nil
 }
 
+// example
 // if u want to use postgres
 // type PostgresUserStore struct {
 // }

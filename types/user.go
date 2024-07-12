@@ -23,7 +23,7 @@ type CreateUserParams struct {
 type User struct {
 	ID                primitive.ObjectID `bson:"_id,omitempty" json:"-"`
 	Username          string             `bson:"user_name" json:"username"`
-	EncriptedPassword string             `bson:"encripted_password" json:"-"`
+	EncryptedPassword string             `bson:"encrypted_password" json:"-"`
 }
 
 func NewUserFromParams(params CreateUserParams) (*User, error) {
@@ -35,6 +35,6 @@ func NewUserFromParams(params CreateUserParams) (*User, error) {
 
 	return &User{
 		Username:          params.Username,
-		EncriptedPassword: string(encpw),
+		EncryptedPassword: string(encpw),
 	}, nil
 }

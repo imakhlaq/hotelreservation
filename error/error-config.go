@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Create a new fiber instance with custom config
+// Config Create a new fiber instance with custom config
 var Config = fiber.Config{
 	// Override default error handler
 	ErrorHandler: func(c *fiber.Ctx, err error) error {
