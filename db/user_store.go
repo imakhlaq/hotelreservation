@@ -55,7 +55,8 @@ func (m MongoUserStore) GetAllUsers(ctx context.Context) ([]*types.User, error) 
 	}
 
 	var users []*types.User
-	if err = curr.All(ctx, &users); err != nil {
+	//-------curr.Decode(ctx, &users); for one
+	if err = curr.All(ctx, &users); err != nil { //for all
 		return nil, err
 	}
 	return users, nil
