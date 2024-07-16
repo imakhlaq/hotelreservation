@@ -8,7 +8,6 @@ import (
 var Config = fiber.Config{
 	// Override default error handler
 	ErrorHandler: func(c *fiber.Ctx, err error) error {
-
-		return c.JSON(map[string]any{"status": 200, "message": err.Error()})
+		return c.JSON(map[string]any{"status": 400, "message": err.Error()})
 	},
 }

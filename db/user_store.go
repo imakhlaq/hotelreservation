@@ -18,6 +18,8 @@ type UserStore interface {
 	GetUserByID(context.Context, string) (*types.User, error)
 	GetAllUsers(context.Context) ([]*types.User, error)
 	InsertUser(context.Context, *types.User) (*types.User, error)
+	DeleteUser(context.Context, string) error
+	PostUser(ctx context.Context, id string, user types.User) error
 }
 
 // MongoUserStore it uses mongoose
@@ -70,6 +72,32 @@ func (m MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*type
 
 	user.ID = res.InsertedID.(primitive.ObjectID)
 	return user, nil
+}
+
+func (m MongoUserStore) DeleteUser(ctx context.Context, id string) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = m.coll.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m MongoUserStore) PostUser(ctx context.Context, id string, user types.User) error {
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = m.coll.UpdateByID(ctx, bson.M{"_id": oid}, user)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // example
