@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/imakhlaq/hotelreservation/db"
 	"github.com/imakhlaq/hotelreservation/types"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserHandler struct {
@@ -17,6 +19,14 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 }
 func (u UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")
+
+	//before deleting check the if its exits
+	_, err := u.userStore.GetUserByID(c.Context(), id)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.JSON(map[string]any{"massage": "Record Not found"})
+		}
+	}
 
 	if err := u.userStore.DeleteUser(c.Context(), id); err != nil {
 		return err

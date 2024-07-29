@@ -19,7 +19,7 @@ type UserStore interface {
 	GetAllUsers(context.Context) ([]*types.User, error)
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
-	PostUser(ctx context.Context, id string, user types.User) error
+	UpdateUser(ctx context.Context, id string, user types.User) error
 }
 
 // MongoUserStore it uses mongoose
@@ -87,13 +87,8 @@ func (m MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (m MongoUserStore) PostUser(ctx context.Context, id string, user types.User) error {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return err
-	}
-
-	_, err = m.coll.UpdateByID(ctx, bson.M{"_id": oid}, user)
+func (m MongoUserStore) UpdateUser(ctx context.Context, filter, update bson.M) error {
+	_, err := m.coll.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}
