@@ -19,7 +19,7 @@ type UserStore interface {
 	GetAllUsers(context.Context) ([]*types.User, error)
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
-	UpdateUser(ctx context.Context, id string, user types.User) error
+	UpdateUser(context.Context, primitive.M, primitive.M) error
 }
 
 // MongoUserStore it uses mongoose
