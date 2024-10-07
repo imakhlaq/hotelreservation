@@ -94,6 +94,8 @@ func (u UserHandler) HandleUpdate(c *fiber.Ctx) error {
 	}
 	filter := bson.M{"_id": oid}
 
-	u.userStore.UpdateUser(c.Context(), filter, param)
-	return nil
+	if err = u.userStore.UpdateUser(c.Context(), filter, param); err != nil {
+		return err
+	}
+	return c.JSON(map[string]string{"updated": id})
 }

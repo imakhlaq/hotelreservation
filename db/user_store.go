@@ -90,7 +90,11 @@ func (m MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 }
 
 func (m MongoUserStore) UpdateUser(ctx context.Context, filter, update bson.M) error {
-	_, err := m.coll.UpdateOne(ctx, filter, update)
+
+	update2 := bson.D{
+		{"$set", update},
+	}
+	_, err := m.coll.UpdateOne(ctx, filter, update2)
 	if err != nil {
 		return err
 	}
