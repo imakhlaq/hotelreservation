@@ -7,6 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/imakhlaq/hotelreservation/db"
 	"github.com/imakhlaq/hotelreservation/types"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -31,8 +33,8 @@ func (u UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 	if err := u.userStore.DeleteUser(c.Context(), id); err != nil {
 		return err
 	}
-
-	res, _ := fmt.Printf("User with id %s is deleted", id)
+	//Sprintf is for string format Printf is for writing to the terminal.
+	res := fmt.Sprintf("User with id %s is deleted", id)
 	return c.JSON(map[string]any{"message": res})
 }
 
@@ -59,12 +61,15 @@ func (u UserHandler) HandlePostUser(c *fiber.Ctx) error {
 	return c.JSON(insertedUser)
 }
 
-func (u UserHandler) HandleUser(c *fiber.Ctx) error {
+func (u UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	id := c.Params("id") // id from req param
 
 	user, err := u.userStore.GetUserByID(c.Context(), id)
 	if err != nil {
-		return c.JSON(map[string]string{"message": "User does't exit."})
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.JSON(map[string]string{"message": "User does't exit."})
+		}
+		return err
 	}
 	return c.JSON(user)
 }
@@ -74,4 +79,21 @@ func (u UserHandler) HandleUsers(c *fiber.Ctx) error {
 		return fmt.Errorf("NO USERS IN DB")
 	}
 	return c.JSON(users)
+}
+func (u UserHandler) HandleUpdate(c *fiber.Ctx) error {
+	var (
+		id    = c.Params("id")
+		param map[string]any
+	)
+	if err := c.BodyParser(&param); err != nil {
+		return err
+	}
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": oid}
+
+	u.userStore.UpdateUser(c.Context(), filter, param)
+	return nil
 }

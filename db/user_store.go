@@ -80,6 +80,8 @@ func (m MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 		return err
 	}
 
+	//TODO: Maybe we didn't delete a user so you have to handle that
+	//may be log it
 	_, err = m.coll.DeleteOne(ctx, bson.M{"_id": oid})
 	if err != nil {
 		return err
